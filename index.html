@@ -1,25 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My First Website</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rameshwar — A Scientific Journey</title>
 
-    <!-- Connect the CSS file -->
-    <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts: Playfair Display (scholarly display), Inter (body), Space Mono (labels/years) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-    <h1>Welcome to My Website</h1>
+  <!-- ============================================================
+       SITE HEADER / NAV
+       Minimal top bar — kept quiet so the hero takes the stage.
+       On scroll it becomes a thin sticky bar.
+  ============================================================ -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <a href="index.html" class="logo" aria-label="Home">
+        <!-- Replace with your preferred mark or initials -->
+        <span class="logo-initial">R</span>
+      </a>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <a href="#timeline">Projects</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
 
-    <p>
-        This is my first local website. Eventually, this will become a
-        timeline of my projects and work.
-    </p>
 
-    <button id="helloButton">Click Me!</button>
+  <!-- ============================================================
+       HERO SECTION
+       The opening is an invitation to curiosity — not a bio.
+       The tagline should make someone want to keep scrolling.
+       Replace hero-eyebrow / hero-headline / hero-sub with your
+       own words when you have them.
+  ============================================================ -->
+  <section class="hero" id="hero" aria-label="Introduction">
 
-    <!-- Connect the JavaScript file -->
-    <script src="script.js"></script>
+    <!-- Decorative ambient shapes — pure CSS, no images needed -->
+    <div class="hero-bg" aria-hidden="true">
+      <div class="hero-orb hero-orb--1"></div>
+      <div class="hero-orb hero-orb--2"></div>
+      <div class="hero-orb hero-orb--3"></div>
+    </div>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow">A record of experiments, questions, and discoveries</p>
+
+      <h1 class="hero-headline">
+        Every device hides<br />
+        <em>a universe of forces.</em>
+      </h1>
+
+      <p class="hero-sub">
+        This is a living archive of one engineer's attempt to understand those forces —
+        through motors, circuits, code, and the occasional beautiful failure.
+      </p>
+
+      <a href="#timeline" class="hero-cta" aria-label="Browse projects along the timeline">
+        Follow the journey
+        <span class="hero-cta-arrow" aria-hidden="true">↓</span>
+      </a>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-hint" aria-hidden="true">
+      <span class="scroll-hint-line"></span>
+    </div>
+
+  </section>
+
+
+  <!-- ============================================================
+       TIMELINE SECTION
+       The central piece of the website.
+       Cards are rendered by script.js from the PROJECTS array.
+       To add a project, edit the array in script.js — no HTML edits needed.
+  ============================================================ -->
+  <section class="timeline-section" id="timeline" aria-label="Project timeline">
+
+    <div class="timeline-header">
+      <p class="section-eyebrow">The archive</p>
+      <h2 class="section-title">Projects &amp; Investigations</h2>
+      <p class="section-sub">
+        Drag or use the arrows to move through time.
+        Each card is a chapter; click to read the full account.
+      </p>
+    </div>
+
+    <!-- Navigation arrows -->
+    <div class="timeline-nav" aria-label="Timeline navigation">
+      <button class="tl-arrow tl-arrow--prev" id="tlPrev" aria-label="Previous projects">
+        ←
+      </button>
+      <button class="tl-arrow tl-arrow--next" id="tlNext" aria-label="Next projects">
+        →
+      </button>
+    </div>
+
+    <!-- The scrollable track — JS populates project cards here -->
+    <div class="timeline-track-wrapper" role="region" aria-label="Scrollable project timeline">
+      <div class="timeline-track" id="timelineTrack">
+        <!-- Project cards injected by script.js -->
+      </div>
+    </div>
+
+    <!-- Progress dots — JS populates these -->
+    <div class="timeline-dots" id="timelineDots" aria-hidden="true"></div>
+
+  </section>
+
+
+  <!-- ============================================================
+       FEATURED / SPOTLIGHT SECTION  (optional, easy to remove)
+       Highlights one project in a wider format.
+       Replace content when ready.
+  ============================================================ -->
+  <section class="spotlight" id="spotlight" aria-label="Featured project">
+    <div class="spotlight-inner">
+      <div class="spotlight-meta">
+        <p class="section-eyebrow">Currently working on</p>
+        <h2 class="spotlight-title">IoT Energy Monitoring Platform</h2>
+        <p class="spotlight-body">
+          <!-- Replace with a real paragraph when ready -->
+          An ESP8266-based multi-tenant platform that measures, audits, and 
+          interprets household energy consumption — blending embedded firmware, 
+          secure WebSocket communication, and an AI-driven auditing layer.
+        </p>
+        <a href="project.html" class="btn-outline">Read the full account →</a>
+      </div>
+      <figure class="spotlight-figure" aria-hidden="true">
+        <!-- Replace src with a real image when available -->
+        <div class="placeholder-image placeholder-image--large">
+          <span class="placeholder-label">Project image</span>
+        </div>
+        <figcaption>ESP8266 sensor node, prototype v2</figcaption>
+      </figure>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       ABOUT / PERSONAL SECTION
+       Intentionally placed near the bottom.
+       The work comes first; personal details are supporting info.
+  ============================================================ -->
+  <section class="about" id="about" aria-label="About">
+    <div class="about-inner">
+
+      <div class="about-text">
+        <p class="section-eyebrow">The person behind the work</p>
+        <h2 class="about-name">Rameshwar</h2>
+        <p class="about-bio">
+          <!-- Replace with your actual bio -->
+          Engineering student at VIIT Pune, spending most of my time at the intersection 
+          of embedded systems, motor control, and whatever rabbit hole I fell into last week.
+          This website is an honest record of that process — including the wrong turns.
+        </p>
+
+        <!-- Replace or expand these as needed -->
+        <ul class="about-tags" aria-label="Interests and areas">
+          <li>Field-Oriented Control</li>
+          <li>IoT Systems</li>
+          <li>Embedded Firmware</li>
+          <li>Signal Processing</li>
+          <li>PMSM Modelling</li>
+          <li>Scientific Writing</li>
+        </ul>
+      </div>
+
+      <div class="about-sidebar">
+        <!-- Replace with a real photo when ready -->
+        <div class="placeholder-image placeholder-image--portrait" aria-label="Portrait placeholder">
+          <span class="placeholder-label">Photo</span>
+        </div>
+
+        <div class="about-details">
+          <div class="detail-item">
+            <span class="detail-label">Affiliation</span>
+            <span class="detail-value">VIIT Pune</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Field</span>
+            <span class="detail-value">Electronics &amp; Embedded Systems</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Location</span>
+            <span class="detail-value">Pune, Maharashtra</span>
+          </div>
+          <!-- Add CV / resume link when ready -->
+          <a href="#" class="btn-outline btn-outline--small" aria-label="Download CV (coming soon)">
+            CV / Résumé ↗
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       CONTACT SECTION
+       Simple, unfussy. Replace email/links with real ones.
+  ============================================================ -->
+  <section class="contact" id="contact" aria-label="Contact">
+    <div class="contact-inner">
+      <p class="section-eyebrow">Get in touch</p>
+      <h2 class="contact-headline">Let's talk about the work.</h2>
+      <p class="contact-body">
+        Whether it's a collaboration, a question, or a correction to my maths — 
+        I'm always glad to hear from people who care about building things carefully.
+      </p>
+      <a href="mailto:your@email.com" class="contact-email">your@email.com</a>
+
+      <div class="contact-links">
+        <!-- Replace hrefs with real profile links -->
+        <a href="#" class="contact-link" aria-label="GitHub profile">GitHub</a>
+        <a href="#" class="contact-link" aria-label="LinkedIn profile">LinkedIn</a>
+        <a href="#" class="contact-link" aria-label="ResearchGate profile">ResearchGate</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       FOOTER
+       Intentionally minimal.
+  ============================================================ -->
+  <footer class="site-footer" aria-label="Site footer">
+    <div class="footer-inner">
+      <p class="footer-copy">
+        &copy; <span id="footerYear"></span> Rameshwar — Built with curiosity, maintained with patience.
+      </p>
+      <p class="footer-note">
+        This website is a living document. Last updated <span id="lastUpdated">2025</span>.
+      </p>
+    </div>
+  </footer>
+
+
+  <!-- ============================================================
+       PROJECT MODAL OVERLAY
+       Opens when a timeline card is clicked.
+       Populated dynamically by script.js.
+  ============================================================ -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="Project details" hidden>
+    <div class="modal" id="modal">
+      <button class="modal-close" id="modalClose" aria-label="Close project details">✕</button>
+      <div class="modal-content" id="modalContent">
+        <!-- Populated by script.js -->
+      </div>
+    </div>
+  </div>
+
+
+  <script src="script.js"></script>
 </body>
 </html>
