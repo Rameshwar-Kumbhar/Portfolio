@@ -51,7 +51,7 @@
     </div>
 
     <div class="hero-content">
-      <p class="hero-eyebrow">A record of experiments, questions, and discoveries</p>
+      <p class="hero-eyebrow">Gallery of projects and the lessons they left behind.</p>
 
       <h1 class="hero-headline">
         Every device hides<br />
@@ -59,8 +59,7 @@
       </h1>
 
       <p class="hero-sub">
-        This is a living archive of one engineer's attempt to understand those forces —
-        through motors, circuits, code, and the occasional beautiful failure.
+        This is a public notebook of things I've built, investigated, and occasionally broken—kept as honestly as I can manage.
       </p>
 
       <a href="#timeline" class="hero-cta" aria-label="Browse projects along the timeline">
@@ -87,31 +86,35 @@
 
     <div class="timeline-header">
       <p class="section-eyebrow">The archive</p>
-      <h2 class="section-title">Projects &amp; Investigations</h2>
+      <h2 class="section-title">Projects</h2>
       <p class="section-sub">
         Drag or use the arrows to move through time.
         Each card is a chapter; click to read the full account.
       </p>
     </div>
 
-    <!-- Navigation arrows -->
-    <div class="timeline-nav" aria-label="Timeline navigation">
-      <button class="tl-arrow tl-arrow--prev" id="tlPrev" aria-label="Previous projects">
+    <!-- Controls: arrows + period readout + progress bar -->
+    <div class="timeline-controls" aria-label="Timeline navigation">
+      <button class="tl-arrow tl-arrow--prev" id="tlPrev" aria-label="Scroll to more recent period">
         ←
       </button>
-      <button class="tl-arrow tl-arrow--next" id="tlNext" aria-label="Next projects">
+      <span class="tl-period-label" id="tlPeriodLabel" aria-live="polite"></span>
+      <button class="tl-arrow tl-arrow--next" id="tlNext" aria-label="Scroll to older period">
         →
       </button>
-    </div>
-
-    <!-- The scrollable track — JS populates project cards here -->
-    <div class="timeline-track-wrapper" role="region" aria-label="Scrollable project timeline">
-      <div class="timeline-track" id="timelineTrack">
-        <!-- Project cards injected by script.js -->
+      <div class="tl-progress-bar" aria-hidden="true">
+        <div class="tl-progress-fill" id="tlProgressFill"></div>
       </div>
     </div>
 
-    <!-- Progress dots — JS populates these -->
+    <!-- The scrollable spine track — JS populates bucket columns here -->
+    <div class="timeline-track-wrapper" role="region" aria-label="Scrollable project timeline">
+      <div class="timeline-track" id="timelineTrack">
+        <!-- Bucket columns injected by script.js -->
+      </div>
+    </div>
+
+    <!-- Progress dots — one per bucket, JS populates these -->
     <div class="timeline-dots" id="timelineDots" aria-hidden="true"></div>
 
   </section>
@@ -126,12 +129,10 @@
     <div class="spotlight-inner">
       <div class="spotlight-meta">
         <p class="section-eyebrow">Currently working on</p>
-        <h2 class="spotlight-title">IoT Energy Monitoring Platform</h2>
+        <h2 class="spotlight-title">FX Correlator</h2>
         <p class="spotlight-body">
           <!-- Replace with a real paragraph when ready -->
-          An ESP8266-based multi-tenant platform that measures, audits, and 
-          interprets household energy consumption — blending embedded firmware, 
-          secure WebSocket communication, and an AI-driven auditing layer.
+          comming soon
         </p>
         <a href="project.html" class="btn-outline">Read the full account →</a>
       </div>
@@ -140,7 +141,7 @@
         <div class="placeholder-image placeholder-image--large">
           <span class="placeholder-label">Project image</span>
         </div>
-        <figcaption>ESP8266 sensor node, prototype v2</figcaption>
+        <figcaption>SNAP board</figcaption>
       </figure>
     </div>
   </section>
@@ -155,31 +156,31 @@
     <div class="about-inner">
 
       <div class="about-text">
-        <p class="section-eyebrow">The person behind the work</p>
-        <h2 class="about-name">Rameshwar</h2>
+        <p class="section-eyebrow">The curious culprit</p>
+        <h2 class="about-name">Rameshwar Kumbhar</h2>
         <p class="about-bio">
           <!-- Replace with your actual bio -->
-          Engineering student at VIIT Pune, spending most of my time at the intersection 
-          of embedded systems, motor control, and whatever rabbit hole I fell into last week.
-          This website is an honest record of that process — including the wrong turns.
+          I'm currently a B.Tech student, though a fair amount of my education seems to happen after wandering into whatever rabbit hole caught my attention that week. Most of the projects here started as small curiosities before turning into a roller coaster. I've put this site together to keep track of those adventures—and to share them with anyone else who enjoys taking things apart to see how they work.
         </p>
 
         <!-- Replace or expand these as needed -->
         <ul class="about-tags" aria-label="Interests and areas">
-          <li>Field-Oriented Control</li>
-          <li>IoT Systems</li>
-          <li>Embedded Firmware</li>
-          <li>Signal Processing</li>
-          <li>PMSM Modelling</li>
-          <li>Scientific Writing</li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
         </ul>
       </div>
 
       <div class="about-sidebar">
         <!-- Replace with a real photo when ready -->
-        <div class="placeholder-image placeholder-image--portrait" aria-label="Portrait placeholder">
-          <span class="placeholder-label">Photo</span>
-        </div>
+        <img
+         src="Images\Profile_pic1.jpeg"
+         alt="Photo of myself"
+        class="placeholder-image--portrait"
+        />
 
         <div class="about-details">
           <div class="detail-item">
@@ -188,16 +189,12 @@
           </div>
           <div class="detail-item">
             <span class="detail-label">Field</span>
-            <span class="detail-value">Electronics &amp; Embedded Systems</span>
+            <span class="detail-value">Electronics &amp; Telecommunications</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Location</span>
             <span class="detail-value">Pune, Maharashtra</span>
           </div>
-          <!-- Add CV / resume link when ready -->
-          <a href="#" class="btn-outline btn-outline--small" aria-label="Download CV (coming soon)">
-            CV / Résumé ↗
-          </a>
         </div>
       </div>
 
@@ -212,18 +209,17 @@
   <section class="contact" id="contact" aria-label="Contact">
     <div class="contact-inner">
       <p class="section-eyebrow">Get in touch</p>
-      <h2 class="contact-headline">Let's talk about the work.</h2>
+      <h2 class="contact-headline">Let's talk!</h2>
       <p class="contact-body">
-        Whether it's a collaboration, a question, or a correction to my maths — 
+        Whether it's a collaboration, a question, or a correction — 
         I'm always glad to hear from people who care about building things carefully.
       </p>
-      <a href="mailto:your@email.com" class="contact-email">your@email.com</a>
+      <a href="mailto:rameshwarkumbharsc@gmail.com" class="contact-email">rameshwarkumbharsc@gmail.com</a>
 
       <div class="contact-links">
         <!-- Replace hrefs with real profile links -->
-        <a href="#" class="contact-link" aria-label="GitHub profile">GitHub</a>
+        <a href="https://github.com/Rameshwar-Kumbhar" class="contact-link" aria-label="GitHub profile">GitHub</a>
         <a href="#" class="contact-link" aria-label="LinkedIn profile">LinkedIn</a>
-        <a href="#" class="contact-link" aria-label="ResearchGate profile">ResearchGate</a>
       </div>
     </div>
   </section>
@@ -236,10 +232,10 @@
   <footer class="site-footer" aria-label="Site footer">
     <div class="footer-inner">
       <p class="footer-copy">
-        &copy; <span id="footerYear"></span> Rameshwar — Built with curiosity, maintained with patience.
+        &copy; <span id="footerYear"></span> Rameshwar Kumbhar — Built as a fun project.
       </p>
       <p class="footer-note">
-        This website is a living document. Last updated <span id="lastUpdated">2025</span>.
+        Last updated <span id="lastUpdated">2025</span>.
       </p>
     </div>
   </footer>

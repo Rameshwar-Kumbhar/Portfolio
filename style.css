@@ -67,9 +67,6 @@
   --ease-in:   cubic-bezier(0.64, 0, 0.78, 0);
   --duration:  0.35s;
 
-  /* Timeline card dimensions */
-  --card-w:    320px;
-  --card-h:    440px;
 }
 
 
@@ -429,8 +426,26 @@ ul {
 
 
 /* ============================================================
-   7. TIMELINE SECTION
+   7. TIMELINE SECTION — Branching Trail Layout
+   ============================================================
+   Each bucket has a dynamic width. Projects branch off the spine
+   as horizontal trails, alternating above and below. No vertical
+   scrolling inside a bucket — everything fans out horizontally.
    ============================================================ */
+
+/* ── Design tokens (timeline-specific) ─────────────────── */
+:root {
+  --bucket-w:        300px;   /* fallback only; JS overrides per-bucket */
+  --spine-y:         200px;   /* distance from top of stage to the spine */
+  --stage-h:         520px;   /* total stage height */
+
+  /* Trail geometry — overridden per-trail via JS custom props */
+  --trail-len-above: 120px;   /* vertical length of above-spine branch */
+  --trail-len-below: 120px;   /* vertical length of below-spine branch */
+  --card-h:          140px;   /* approximate card height */
+}
+
+/* ── Section shell ──────────────────────────────────────── */
 .timeline-section {
   padding: var(--sp-20) 0 var(--sp-16);
   background: var(--clr-bg);
@@ -439,204 +454,496 @@ ul {
 
 .timeline-header {
   max-width: var(--max-w);
-  margin: 0 auto var(--sp-12);
+  margin: 0 auto var(--sp-10);
   padding: 0 var(--sp-8);
 }
 
-/* Nav arrows */
-.timeline-nav {
+/* ── Control bar: arrows + period label + progress ──────── */
+.timeline-controls {
   max-width: var(--max-w);
-  margin: 0 auto var(--sp-8);
+  margin: 0 auto var(--sp-6);
   padding: 0 var(--sp-8);
   display: flex;
-  gap: var(--sp-3);
+  align-items: center;
+  gap: var(--sp-4);
 }
 
 .tl-arrow {
-  width: 44px;
-  height: 44px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-full);
   border: 1.5px solid var(--clr-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   color: var(--clr-text-2);
-  transition: border-color var(--duration) var(--ease-out),
-              color var(--duration) var(--ease-out),
-              background var(--duration) var(--ease-out),
-              transform var(--duration) var(--ease-out);
+  transition:
+    border-color var(--duration) var(--ease-out),
+    color        var(--duration) var(--ease-out),
+    background   var(--duration) var(--ease-out),
+    transform    var(--duration) var(--ease-out);
   user-select: none;
 }
+.tl-arrow:hover    { border-color: var(--clr-accent); color: var(--clr-accent); background: var(--clr-accent-lt); }
+.tl-arrow:active   { transform: scale(0.92); }
+.tl-arrow:disabled { opacity: 0.25; pointer-events: none; }
 
-.tl-arrow:hover {
-  border-color: var(--clr-accent);
-  color: var(--clr-accent);
-  background: var(--clr-accent-lt);
-}
-.tl-arrow:active { transform: scale(0.93); }
-.tl-arrow:disabled {
-  opacity: 0.3;
-  pointer-events: none;
+.tl-period-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--clr-text-2);
+  min-width: 100px;
+  text-align: center;
+  transition: opacity 0.2s;
 }
 
-/* The scrollable container */
+.tl-progress-bar {
+  flex: 1;
+  height: 2px;
+  background: var(--clr-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.tl-progress-fill {
+  height: 100%;
+  background: var(--clr-accent);
+  border-radius: var(--radius-full);
+  transition: width 0.45s var(--ease-out);
+  width: 0%;
+}
+
+/* ── Scrollable stage wrapper ───────────────────────────── */
 .timeline-track-wrapper {
-  overflow: hidden; /* actual scroll handled by JS */
+  overflow: hidden;
   cursor: grab;
+  position: relative;
 }
 .timeline-track-wrapper.is-dragging { cursor: grabbing; }
 
+/* ── Track (flex row of bucket columns) ─────────────────── */
 .timeline-track {
   display: flex;
-  align-items: stretch;
-  gap: var(--sp-6);
-  padding: var(--sp-4) var(--sp-8) var(--sp-8);
-  /* Left padding lets the first card align with section text */
+  align-items: flex-start;
+  height: var(--stage-h);
+  width: max-content;
+  position: relative;
   padding-left: max(var(--sp-8), calc((100vw - var(--max-w)) / 2 + var(--sp-8)));
-  /* Right padding allows last card to be fully visible */
-  padding-right: var(--sp-8);
+  padding-right: var(--sp-2);
   transition: transform 0.5s var(--ease-out);
   will-change: transform;
-  /* Disable native scroll; we manage it via JS */
-  overflow: visible;
-  width: max-content;
 }
 
+/* ── Continuous spine line ───────────────────────────────── */
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  top: var(--spine-y);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent 0px,
+    var(--clr-blue-mid) 60px,
+    var(--clr-blue-mid) calc(100% - 60px),
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Bucket column ──────────────────────────────────────── */
+.tl-bucket {
+  flex-shrink: 0;
+  /* width set inline by JS */
+  height: 100%;
+  position: relative;
+}
+
+/* Bucket boundary: a subtle left gate between buckets */
+.tl-bucket + .tl-bucket::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0px,
+    var(--clr-border) 20px,
+    var(--clr-border) calc(100% - 20px),
+    transparent 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Active bucket gate glows */
+.tl-bucket.is-active + .tl-bucket::before,
+.tl-bucket + .tl-bucket.is-active::before {
+  background: linear-gradient(
+    to bottom,
+    transparent 0px,
+    var(--clr-accent-lt) 20px,
+    var(--clr-accent-lt) calc(100% - 20px),
+    transparent 100%
+  );
+}
+
+/* Year-change band (removed) */
+.tl-bucket--new-year::after {
+  display: none;
+}
+
+/* ── Tick mark on spine ─────────────────────────────────── */
+.tl-bucket-tick {
+  position: absolute;
+  top: calc(var(--spine-y) - 7px);
+  left: 20px;   /* anchored to left of bucket = origin of all trails */
+  width: 1px;
+  height: 14px;
+  background: var(--clr-blue-mid);
+  z-index: 2;
+  transition: height var(--duration), background var(--duration), top var(--duration);
+}
+
+/* ── Bucket label — always above ────────────────────────── */
+.tl-bucket-label {
+  position: absolute;
+  left: 20px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--clr-text-3);
+  transition: color var(--duration), font-weight var(--duration);
+  z-index: 2;
+}
+.tl-bucket-label.label-above { top: calc(var(--spine-y) - 28px); }
+.tl-bucket-label.label-below { top: calc(var(--spine-y) + 18px); }
+
+/* Active bucket: label accent + tick grows */
+.tl-bucket.is-active .tl-bucket-label { color: var(--clr-accent); font-weight: 700; }
+.tl-bucket.is-active .tl-bucket-tick  {
+  background: var(--clr-accent);
+  height: 20px;
+  top: calc(var(--spine-y) - 10px);
+}
+
+/* Active bucket subtle tint */
+.tl-bucket.is-active {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(196, 125, 82, 0.03) calc(var(--spine-y) + 20px),
+    rgba(196, 125, 82, 0.03) 100%
+  );
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+/* ── Empty bucket ghost ─────────────────────────────────── */
+.tl-empty-note {
+  position: absolute;
+  top: calc(var(--spine-y) + 28px);
+  left: 20px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clr-border);
+}
 
 /* ============================================================
-   7a. PROJECT CARDS
+   TRAIL LAYOUT
+   ─────────────
+   .tl-trails   — absolute container that fills the bucket.
+                  Trails are positioned inside it.
+   .tl-trail    — one project's branch (line + card).
+   .tl-trail-line — the horizontal line from spine to card.
+   .tl-entry    — the project card at the tip.
+
+   Each trail reads three custom properties set by JS:
+     --ti          trail index (0, 1, 2, …)
+     --card-w      card width in px
+     --card-gap    gap between cards in px
+     --bucket-pad  left padding before first trail
+
+   Horizontal offset of trail i:
+     left = var(--bucket-pad) + var(--ti) * (var(--card-w) + var(--card-gap))
+
+   Above trails: card sits above the spine; line goes up.
+   Below trails: card sits below the spine; line goes down.
    ============================================================ */
-.project-card {
+
+.tl-trails {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;   /* re-enabled on .tl-entry */
+}
+
+/* ── Common trail ───────────────────────────────────────── */
+.tl-trail {
+  position: absolute;
+  /* Horizontal position: bucket-pad + index × (card-w + gap) */
+  left: calc(var(--bucket-pad) + var(--ti) * (var(--card-w) + var(--card-gap)));
   width: var(--card-w);
-  min-width: var(--card-w);
+  pointer-events: none;
+}
+
+/* ── BELOW-spine trail ──────────────────────────────────── */
+/*
+  Origin dot at spine (top: spine-y).
+  Line runs downward 80px.
+  Card sits at line-bottom.
+*/
+.tl-trail--below {
+  top: var(--spine-y);
+}
+
+.tl-trail--below .tl-trail-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--card-w) * 0.45);   /* line stops at ~45% of card width */
+  height: 1px;
+  /* The line is actually the horizontal part; we use a border trick:
+     a vertical drop + horizontal run via a right-angle shape using box */
+  /* We'll use a simple approach: absolute vertical line then the card */
+  background: none;
+}
+
+/* Simpler approach: use ::before/::after on the trail for the L-shape */
+.tl-trail--below::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 72px;   /* vertical drop */
+  background: linear-gradient(to bottom, var(--clr-blue-mid), var(--clr-border));
+}
+
+.tl-trail--below::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 72px;
+  width: calc(var(--card-w) * 0.5);
+  height: 1px;
+  background: linear-gradient(to right, var(--clr-border), transparent);
+}
+
+.tl-trail--below .tl-entry {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  width: var(--card-w);
+  pointer-events: auto;
+}
+
+/* ── ABOVE-spine trail ──────────────────────────────────── */
+/*
+  Origin dot at spine (bottom edge at spine-y).
+  Line runs upward 80px.
+  Card sits at line-top (so its bottom is above the line top).
+*/
+.tl-trail--above {
+  /* bottom of trail sits at spine-y */
+  bottom: calc(var(--stage-h) - var(--spine-y));
+  /* Card height ~140px + 80px stem = 220px, position from bottom */
+}
+
+.tl-trail--above::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 72px;
+  background: linear-gradient(to top, var(--clr-blue-mid), var(--clr-border));
+}
+
+.tl-trail--above::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 72px;
+  width: calc(var(--card-w) * 0.5);
+  height: 1px;
+  background: linear-gradient(to right, var(--clr-border), transparent);
+}
+
+.tl-trail--above .tl-entry {
+  position: absolute;
+  bottom: 80px;
+  left: 0;
+  width: var(--card-w);
+  pointer-events: auto;
+}
+
+/* Hide the line element (we use ::before/::after instead) */
+.tl-trail-line { display: none; }
+
+/* ── Origin dot on spine for each trail ────────────────────
+   A small circle where the trail meets the spine line.        */
+.tl-trail--below .tl-entry::before,
+.tl-trail--above .tl-entry::before {
+  display: none;  /* dot is on the trail, not the entry */
+}
+
+/* Dot on spine origin: ::before on .tl-trail itself (above the ::before we used for line)
+   We'll add the dot via a separate element approach.
+   Actually, let's just put it on tl-trail-line which is now display:none — use a different selector */
+
+/* Origin dot: repurpose the now-hidden .tl-trail-line as the dot */
+.tl-trail-line {
+  display: block;
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--clr-blue-mid);
+  border: 2px solid var(--clr-bg);
+  z-index: 3;
+}
+/* Position it at the spine intersection */
+.tl-trail--below .tl-trail-line {
+  top: -3px;
+  left: -3px;
+}
+.tl-trail--above .tl-trail-line {
+  bottom: -3px;
+  left: -3px;
+  top: auto;
+}
+
+/* ── Project entry card ─────────────────────────────────── */
+.tl-entry {
   background: var(--clr-surface);
-  border-radius: var(--radius-lg);
   border: 1px solid var(--clr-border);
-  overflow: hidden;
+  border-left: 3px solid var(--clr-accent-lt);
+  border-radius: var(--entry-radius, var(--radius-md));
+  padding: var(--sp-3) var(--sp-3) var(--sp-2);
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  /* The signature lab-notebook left accent — terracotta stamp */
-  box-shadow:
-    inset 4px 0 0 var(--clr-accent-lt),
-    0 4px 24px var(--clr-shadow);
+  gap: var(--sp-1);
+  box-shadow: 0 2px 8px var(--clr-shadow);
   transition:
-    transform var(--duration) var(--ease-out),
-    box-shadow var(--duration) var(--ease-out),
-    border-color var(--duration) var(--ease-out);
-  cursor: pointer;
-  /* Entrance animation — staggered by JS via --delay CSS var */
+    border-left-color var(--duration) var(--ease-out),
+    transform         var(--duration) var(--ease-out),
+    box-shadow        var(--duration) var(--ease-out),
+    border-color      var(--duration) var(--ease-out);
   opacity: 0;
-  animation: card-enter 0.6s var(--ease-out) var(--delay, 0s) forwards;
+  animation: entry-enter 0.4s var(--ease-out) var(--entry-delay, 0s) forwards;
 }
 
-.project-card:hover {
-  transform: translateY(-6px);
-  box-shadow:
-    inset 4px 0 0 var(--clr-accent),
-    0 16px 48px rgba(30, 60, 90, 0.14);
-  border-color: var(--clr-blue-mid);
-}
-
-@keyframes card-enter {
-  from { opacity: 0; transform: translateY(16px); }
+@keyframes entry-enter {
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Card image area */
-.card-image {
-  height: 200px;
-  overflow: hidden;
-  background: var(--clr-surface-2);
-  position: relative;
-  flex-shrink: 0;
+.tl-entry:hover {
+  border-left-color: var(--clr-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(30, 60, 90, 0.13);
+  border-color: var(--clr-blue-mid);
 }
 
-.card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s var(--ease-out);
-}
-.project-card:hover .card-image img { transform: scale(1.04); }
-
-/* Body */
-.card-body {
-  padding: var(--sp-6);
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.card-year {
+/* ── Entry content parts ────────────────────────────────── */
+.tl-entry-date {
   font-family: var(--font-mono);
-  font-size: var(--text-xs);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--clr-accent);
-  letter-spacing: 0.1em;
-  margin-bottom: var(--sp-3);
 }
 
-.card-title {
+.tl-entry-title {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--clr-text);
   line-height: 1.3;
-  margin-bottom: var(--sp-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.card-desc {
-  font-size: var(--text-sm);
+.tl-entry-desc {
+  font-size: var(--text-xs);
   color: var(--clr-text-2);
-  line-height: 1.65;
-  flex: 1;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.card-tags {
+.tl-entry-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-2);
-  margin-top: var(--sp-4);
+  gap: 3px;
+  margin-top: 2px;
 }
-
-.card-tag {
+.tl-entry-tag {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  font-size: 8px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--clr-blue-deep);
   background: var(--clr-surface-2);
   border-radius: var(--radius-sm);
-  padding: 3px 8px;
+  padding: 2px 5px;
 }
 
-.card-link-hint {
-  font-size: var(--text-xs);
+.tl-entry-hint {
+  font-size: 9px;
   color: var(--clr-text-3);
-  margin-top: var(--sp-4);
-  transition: color var(--duration) var(--ease-out);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  transition: color var(--duration);
+  margin-top: var(--sp-1);
 }
-.project-card:hover .card-link-hint { color: var(--clr-accent); }
+.tl-entry:hover .tl-entry-hint { color: var(--clr-accent); }
 
-
-/* Progress dots */
+/* ── Navigation dots ────────────────────────────────────── */
 .timeline-dots {
   display: flex;
   justify-content: center;
   gap: var(--sp-2);
   margin-top: var(--sp-6);
+  flex-wrap: wrap;
 }
-
 .tl-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: var(--radius-full);
   background: var(--clr-border);
-  transition: background var(--duration), width var(--duration);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background var(--duration), width var(--duration), transform var(--duration);
 }
-.tl-dot.active {
-  background: var(--clr-accent);
-  width: 22px;
+.tl-dot:hover    { background: var(--clr-blue-mid); transform: scale(1.3); }
+.tl-dot.active   { background: var(--clr-accent); width: 18px; border-radius: 3px; }
+
+/* ── Mobile overrides ───────────────────────────────────── */
+@media (max-width: 640px) {
+  :root {
+    --spine-y:  160px;
+    --stage-h:  480px;
+  }
+  .timeline-header,
+  .timeline-controls { padding: 0 var(--sp-4); }
+  .timeline-track    { padding-left: var(--sp-4); }
 }
 
 
@@ -717,9 +1024,14 @@ ul {
 }
 
 .placeholder-image--portrait {
-  width: 100%;
-  max-width: 280px;
-  height: 340px;
+    width: 100%;
+    max-width: 280px;
+    height: 340px;          /* fixed frame size */
+    object-fit: cover;      /* preserve aspect ratio, crop excess */
+    object-position: 85% 50%;  /* adjust focus point */
+    border-radius: var(--radius-md);
+    border: 1px solid var(--clr-border);
+    box-shadow: 0 8px 24px var(--clr-shadow);
 }
 
 .placeholder-label::before {
@@ -1124,34 +1436,16 @@ ul {
     flex-wrap: wrap;
     align-items: flex-start;
   }
-
-  .placeholder-image--portrait {
-    max-width: 180px;
-    height: 220px;
-  }
 }
 
 /* Mobile */
 @media (max-width: 640px) {
-  :root {
-    --card-w: 280px;
-    --card-h: auto;
-  }
-
   .site-header { padding: var(--sp-3) var(--sp-4); }
   .site-header.scrolled { padding: var(--sp-2) var(--sp-4); }
 
   .primary-nav { gap: var(--sp-4); }
 
   .hero { padding: var(--sp-20) var(--sp-4) var(--sp-16); }
-
-  .timeline-header,
-  .timeline-nav { padding: 0 var(--sp-4); }
-
-  .timeline-track {
-    padding-left: var(--sp-4);
-    gap: var(--sp-4);
-  }
 
   .spotlight { padding: var(--sp-12) var(--sp-4); }
   .about { padding: var(--sp-12) var(--sp-4); }
@@ -1163,7 +1457,5 @@ ul {
 
   .modal-content { padding: var(--sp-6); }
 
-  .about-sidebar {
-    flex-direction: column;
-  }
+  .about-sidebar { flex-direction: column; }
 }
